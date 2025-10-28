@@ -69,9 +69,18 @@ const handleClick = () => {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Transitions uniquement pour box-shadow et border, PAS pour transform */
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
   user-select: none;
+}
+
+.poker-card.selectable {
+  /* Transition pour hover uniquement sur les cartes sélectionnables */
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .poker-card.selectable:hover {
@@ -85,10 +94,11 @@ const handleClick = () => {
 }
 
 .poker-card.hidden {
+  /* Rotation instantanée sans transition */
   transform: rotateY(180deg);
 }
 
-.poker-card:active {
+.poker-card.selectable:active {
   transform: scale(0.95);
 }
 
