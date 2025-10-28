@@ -3,11 +3,20 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useCurrentUser } from 'vuefire'
 import { signOut } from 'firebase/auth'
 import { auth } from './firebase'
+import { useRooms } from './composables/useRooms'
 import Login from './components/Login.vue'
-import HelloWorld from './components/HelloWorld.vue'
+import RoomList from './components/RoomList.vue'
+import CreateRoom from './components/CreateRoom.vue'
+import RoomView from './components/RoomView.vue'
 
 const user = useCurrentUser()
 const currentDateTime = ref('')
+const { joinRoom, leaveRoom } = useRooms()
+
+// Gestion des vues
+const currentView = ref('room-list') // 'room-list', 'create-room', 'room-view'
+const currentRoomId = ref(null)
+const currentRoomName = ref('')
 
 const updateDateTime = () => {
   const now = new Date()
@@ -25,9 +34,80 @@ const updateDateTime = () => {
 
 const logout = async () => {
   try {
+    // Si l'utilisateur est dans un salon, le quitter d'abord
+    if (currentRoomId.value && user.value) {
+      await leaveRoom(currentRoomId.value, user.value.uid)
+    }
     await signOut(auth)
   } catch (error) {
     console.error('Erreur lors de la déconnexion:', error)
+  }
+}
+
+const showCreateRoom = () => {
+  currentView.value = 'create-room'
+}
+
+const handleRoomCreated = async (roomId) => {
+  // Après création, rejoindre automatiquement le salon
+  if (user.value) {
+    try {
+      await joinRoom(roomId, user.value)
+      const rooms = await import('./composables/useRooms')
+      const { subscribeToRooms } = rooms.useRooms()
+
+      // Trouver le nom du salon créé
+      subscribeToRooms((roomsList) => {
+        const room = roomsList.find(r => r.id === roomId)
+        if (room) {
+          currentRoomName.value = room.name
+          currentRoomId.value = roomId
+          currentView.value = 'room-view'
+        }
+      })
+    } catch (err) {
+      console.error('Erreur lors de la jonction au salon créé:', err)
+    }
+  }
+}
+
+const handleCancelCreate = () => {
+  currentView.value = 'room-list'
+}
+
+const handleJoinRoom = async (roomId) => {
+  if (!user.value) return
+
+  try {
+    await joinRoom(roomId, user.value)
+
+    // Trouver le nom du salon
+    const rooms = await import('./composables/useRooms')
+    const { subscribeToRooms } = rooms.useRooms()
+
+    subscribeToRooms((roomsList) => {
+      const room = roomsList.find(r => r.id === roomId)
+      if (room) {
+        currentRoomName.value = room.name
+        currentRoomId.value = roomId
+        currentView.value = 'room-view'
+      }
+    })
+  } catch (err) {
+    console.error('Erreur lors de la jonction au salon:', err)
+  }
+}
+
+const handleLeaveRoom = async () => {
+  if (!user.value || !currentRoomId.value) return
+
+  try {
+    await leaveRoom(currentRoomId.value, user.value.uid)
+    currentRoomId.value = null
+    currentRoomName.value = ''
+    currentView.value = 'room-list'
+  } catch (err) {
+    console.error('Erreur lors de la sortie du salon:', err)
   }
 }
 
@@ -54,17 +134,38 @@ onUnmounted(() => {
     <div class="user-info">
       <div class="user-details">
         <img v-if="user.photoURL" :src="user.photoURL" alt="Avatar" class="avatar" />
-        <span class="user-name">{{ user.displayName || user.email }}</span>
+        <div class="user-text">
+          <span class="user-name">{{ user.displayName || user.email }}</span>
+          <span class="datetime">{{ currentDateTime }}</span>
+        </div>
       </div>
       <button @click="logout" class="logout-button">Déconnexion</button>
     </div>
 
-    <HelloWorld msg="Hello World!" />
-    <div class="datetime">{{ currentDateTime }}</div>
-    <div class="info">
-      <p>Cette application Vue.js est déployée automatiquement via GitHub Pages</p>
-      <p>Elle est buildée avec Vite et utilise GitHub Actions pour le déploiement</p>
-      <p>Vous êtes connecté avec Firebase Authentication</p>
+    <div class="main-content">
+      <!-- Liste des salons -->
+      <RoomList
+        v-if="currentView === 'room-list'"
+        :current-room-id="currentRoomId"
+        @create-room="showCreateRoom"
+        @join-room="handleJoinRoom"
+        @leave-room="handleLeaveRoom"
+      />
+
+      <!-- Création d'un salon -->
+      <CreateRoom
+        v-else-if="currentView === 'create-room'"
+        @created="handleRoomCreated"
+        @cancel="handleCancelCreate"
+      />
+
+      <!-- Vue d'un salon -->
+      <RoomView
+        v-else-if="currentView === 'room-view' && currentRoomId"
+        :room-id="currentRoomId"
+        :room-name="currentRoomName"
+        @leave="handleLeaveRoom"
+      />
     </div>
   </div>
 </template>
@@ -73,87 +174,86 @@ onUnmounted(() => {
 .app {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  padding: 20px;
-  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .user-info {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 12px 20px;
-  border-radius: 50px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .user-details {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #42b983;
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .user-name {
-  color: #333;
-  font-weight: 500;
-  font-size: 0.95em;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.datetime {
+  color: #6c757d;
+  font-size: 0.8rem;
 }
 
 .logout-button {
-  background: #667eea;
+  background: #dc3545;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 0.65rem 1.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9em;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
 .logout-button:hover {
-  background: #5568d3;
-  transform: translateY(-1px);
+  background: #c82333;
+  transform: translateY(-2px);
 }
 
-.datetime {
-  color: white;
-  font-size: 1.5em;
-  margin-top: 20px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
 }
 
-.info {
-  margin-top: 40px;
-  color: rgba(255, 255, 255, 0.9);
-  text-align: center;
-  max-width: 600px;
-}
-
-.info p {
-  margin: 10px 0;
-  font-size: 1.1em;
-}
-
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .user-info {
-    position: static;
-    margin-bottom: 20px;
-    flex-direction: column;
-    gap: 12px;
+    padding: 1rem;
+  }
+
+  .user-text {
+    display: none;
+  }
+
+  .main-content {
+    padding: 1rem;
   }
 }
 </style>
