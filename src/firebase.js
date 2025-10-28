@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-import { getAuth, GoogleAuthProvider, OAuthProvider } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 
 // Configuration Firebase
 const firebaseConfig = {
@@ -22,8 +22,7 @@ const db = getFirestore(firebaseApp)
 // Initialiser Auth
 const auth = getAuth(firebaseApp)
 
-// Fournisseurs d'authentification
+// Fournisseur d'authentification Google
 const googleProvider = new GoogleAuthProvider()
-const microsoftProvider = new OAuthProvider('microsoft.com')
 
-export { firebaseApp, db, auth, googleProvider, microsoftProvider }
+export { firebaseApp, db, auth, googleProvider }
