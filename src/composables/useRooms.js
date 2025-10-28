@@ -9,7 +9,9 @@ import {
   setDoc,
   deleteDoc,
   serverTimestamp,
-  getDocs
+  getDocs,
+  updateDoc,
+  writeBatch
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
@@ -90,7 +92,9 @@ export function useRooms() {
         userEmail: user.email,
         userName: user.displayName || user.email,
         userPhotoURL: user.photoURL || null,
-        joinedAt: serverTimestamp()
+        joinedAt: serverTimestamp(),
+        selectedCard: null,
+        selectedAt: null
       }
 
       const participantRef = doc(db, 'rooms', roomId, 'participants', user.uid)
@@ -163,6 +167,63 @@ export function useRooms() {
     }
   }
 
+  // Sélectionner une carte pour le Planning Poker
+  const selectCard = async (roomId, userId, cardValue) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const participantRef = doc(db, 'rooms', roomId, 'participants', userId)
+      await updateDoc(participantRef, {
+        selectedCard: cardValue,
+        selectedAt: serverTimestamp()
+      })
+
+      return true
+    } catch (err) {
+      console.error('Erreur lors de la sélection de la carte:', err)
+      const errorMessage = getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Réinitialiser le tour (nouveau tour)
+  const resetRound = async (roomId) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      // Récupérer tous les participants
+      const participantsSnapshot = await getDocs(
+        collection(db, 'rooms', roomId, 'participants')
+      )
+
+      // Utiliser un batch pour réinitialiser toutes les cartes en une seule transaction
+      const batch = writeBatch(db)
+
+      participantsSnapshot.forEach((participantDoc) => {
+        const participantRef = doc(db, 'rooms', roomId, 'participants', participantDoc.id)
+        batch.update(participantRef, {
+          selectedCard: null,
+          selectedAt: null
+        })
+      })
+
+      await batch.commit()
+      return true
+    } catch (err) {
+      console.error('Erreur lors de la réinitialisation du tour:', err)
+      const errorMessage = getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     rooms,
     participants,
@@ -173,6 +234,8 @@ export function useRooms() {
     joinRoom,
     leaveRoom,
     subscribeToParticipants,
-    getParticipantCount
+    getParticipantCount,
+    selectCard,
+    resetRound
   }
 }
