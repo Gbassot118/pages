@@ -57,6 +57,14 @@
           >
             Quitter
           </button>
+          <button
+            v-if="room.participantCount === 0 && currentRoomId !== room.id"
+            @click="handleDeleteRoom(room.id, room.name)"
+            class="btn-delete"
+            title="Supprimer ce salon vide"
+          >
+            Supprimer
+          </button>
         </div>
       </div>
     </div>
@@ -75,9 +83,9 @@ const props = defineProps({
   }
 })
 
-defineEmits(['create-room', 'join-room', 'leave-room'])
+defineEmits(['create-room', 'join-room', 'leave-room', 'delete-room'])
 
-const { rooms, subscribeToRooms, getParticipantCount, loading, error } = useRooms()
+const { rooms, subscribeToRooms, getParticipantCount, deleteRoom, loading, error } = useRooms()
 const roomsWithCounts = ref([])
 let unsubscribe = null
 
@@ -92,6 +100,16 @@ const updateParticipantCounts = async () => {
     })
   )
   roomsWithCounts.value = updatedRooms
+}
+
+const handleDeleteRoom = async (roomId, roomName) => {
+  if (confirm(`Voulez-vous vraiment supprimer le salon "${roomName}" ?`)) {
+    try {
+      await deleteRoom(roomId)
+    } catch (err) {
+      alert(err.message)
+    }
+  }
 }
 
 const formatDate = (timestamp) => {
@@ -276,6 +294,16 @@ h2 {
 
 .btn-leave:hover {
   background: #c82333;
+}
+
+.btn-delete {
+  background: #6c757d;
+  color: white;
+  margin-top: 0.5rem;
+}
+
+.btn-delete:hover {
+  background: #5a6268;
 }
 
 @media (max-width: 768px) {
