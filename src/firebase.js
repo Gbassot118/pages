@@ -2,14 +2,15 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 
-// Configuration Firebase - À remplacer avec vos clés API
+// Configuration Firebase
 const firebaseConfig = {
-  apiKey: "VOTRE_API_KEY",
-  authDomain: "VOTRE_AUTH_DOMAIN",
-  projectId: "VOTRE_PROJECT_ID",
-  storageBucket: "VOTRE_STORAGE_BUCKET",
-  messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
-  appId: "VOTRE_APP_ID"
+  apiKey: "AIzaSyBgdlYF_GyBPaP44TIPRCaJ7ip6Olm0lBA",
+  authDomain: "pages-6c81c.firebaseapp.com",
+  projectId: "pages-6c81c",
+  storageBucket: "pages-6c81c.firebasestorage.app",
+  messagingSenderId: "227547075363",
+  appId: "1:227547075363:web:adafe80a8bd79d9ebd7296",
+  measurementId: "G-8DG64WSMK8"
 }
 
 // Initialiser Firebase
