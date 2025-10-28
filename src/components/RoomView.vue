@@ -3,61 +3,117 @@
     <div class="room-header">
       <div class="room-title">
         <h2>{{ roomName }}</h2>
-        <span class="online-indicator">
-          {{ participants.length }} {{ participants.length > 1 ? 'participants connectés' : 'participant connecté' }}
-        </span>
+        <div class="header-badges">
+          <span class="online-indicator">
+            {{ activeParticipants.length }} {{ activeParticipants.length > 1 ? 'participants' : 'participant' }}
+          </span>
+          <span v-if="spectators.length > 0" class="spectator-indicator">
+            {{ spectators.length }} {{ spectators.length > 1 ? 'spectateurs' : 'spectateur' }}
+          </span>
+        </div>
       </div>
-      <button @click="handleLeaveRoom" class="btn-leave">
-        Quitter le salon
-      </button>
+      <div class="header-actions">
+        <button
+          @click="handleToggleSpectator"
+          class="btn-spectator"
+          :class="{ 'active': isCurrentUserSpectator }"
+        >
+          {{ isCurrentUserSpectator ? '👁️ Mode spectateur' : '🎲 Mode participant' }}
+        </button>
+        <button @click="handleLeaveRoom" class="btn-leave">
+          Quitter le salon
+        </button>
+      </div>
     </div>
 
     <div class="room-content">
       <div class="participants-section">
-        <h3>Participants</h3>
+        <h3>Participants actifs</h3>
 
         <div v-if="loading && participants.length === 0" class="loading">
           Chargement des participants...
         </div>
 
-        <div v-else-if="participants.length === 0" class="empty">
+        <div v-else-if="activeParticipants.length === 0 && spectators.length === 0" class="empty">
           Aucun participant pour le moment.
         </div>
 
-        <div v-else class="participants-list">
-          <div
-            v-for="participant in participants"
-            :key="participant.id"
-            class="participant-card"
-            :class="{ 'is-you': participant.userId === currentUserId }"
-          >
-            <div class="participant-avatar">
-              <img
-                v-if="participant.userPhotoURL"
-                :src="participant.userPhotoURL"
-                :alt="participant.userName"
-              />
-              <div v-else class="avatar-placeholder">
-                {{ getInitials(participant.userName) }}
+        <div v-else>
+          <!-- Participants actifs -->
+          <div v-if="activeParticipants.length > 0" class="participants-list">
+            <div
+              v-for="participant in activeParticipants"
+              :key="participant.id"
+              class="participant-card"
+              :class="{ 'is-you': participant.userId === currentUserId }"
+            >
+              <div class="participant-avatar">
+                <img
+                  v-if="participant.userPhotoURL"
+                  :src="participant.userPhotoURL"
+                  :alt="participant.userName"
+                />
+                <div v-else class="avatar-placeholder">
+                  {{ getInitials(participant.userName) }}
+                </div>
+              </div>
+
+              <div class="participant-info">
+                <div class="participant-name">
+                  {{ participant.userName }}
+                  <span v-if="participant.userId === currentUserId" class="you-badge">
+                    (Vous)
+                  </span>
+                </div>
+                <div class="participant-email">
+                  {{ participant.userEmail }}
+                </div>
+                <div class="participant-joined">
+                  Connecté {{ formatJoinTime(participant.joinedAt) }}
+                </div>
+              </div>
+
+              <div class="online-dot"></div>
+            </div>
+          </div>
+
+          <!-- Spectateurs -->
+          <div v-if="spectators.length > 0" class="spectators-section">
+            <h4>Spectateurs</h4>
+            <div class="participants-list">
+              <div
+                v-for="spectator in spectators"
+                :key="spectator.id"
+                class="participant-card spectator"
+                :class="{ 'is-you': spectator.userId === currentUserId }"
+              >
+                <div class="participant-avatar">
+                  <img
+                    v-if="spectator.userPhotoURL"
+                    :src="spectator.userPhotoURL"
+                    :alt="spectator.userName"
+                  />
+                  <div v-else class="avatar-placeholder">
+                    {{ getInitials(spectator.userName) }}
+                  </div>
+                </div>
+
+                <div class="participant-info">
+                  <div class="participant-name">
+                    {{ spectator.userName }}
+                    <span v-if="spectator.userId === currentUserId" class="you-badge">
+                      (Vous)
+                    </span>
+                    <span class="spectator-badge">👁️</span>
+                  </div>
+                  <div class="participant-email">
+                    {{ spectator.userEmail }}
+                  </div>
+                </div>
+
+                <div class="spectator-dot"></div>
               </div>
             </div>
-
-            <div class="participant-info">
-              <div class="participant-name">
-                {{ participant.userName }}
-                <span v-if="participant.userId === currentUserId" class="you-badge">
-                  (Vous)
-                </span>
-              </div>
-              <div class="participant-email">
-                {{ participant.userEmail }}
-              </div>
-              <div class="participant-joined">
-                Connecté {{ formatJoinTime(participant.joinedAt) }}
-              </div>
-            </div>
-
-            <div class="online-dot"></div>
           </div>
         </div>
       </div>
@@ -65,10 +121,16 @@
       <div class="poker-section">
         <h3>Planning Poker</h3>
 
-        <!-- Zone des votes des participants -->
-        <div class="voting-area">
+        <!-- Message pour les spectateurs -->
+        <div v-if="isCurrentUserSpectator" class="spectator-message">
+          <span class="spectator-icon">👁️</span>
+          <p>Vous êtes en mode spectateur. Vous pouvez voir les votes mais ne pouvez pas voter.</p>
+        </div>
+
+        <!-- Zone des votes des participants actifs -->
+        <div class="voting-area" v-if="activeParticipants.length > 0">
           <div
-            v-for="participant in participants"
+            v-for="participant in activeParticipants"
             :key="participant.id"
             class="participant-vote"
           >
@@ -97,6 +159,11 @@
           </div>
         </div>
 
+        <!-- Message si aucun participant actif -->
+        <div v-else class="no-active-participants">
+          <p>Aucun participant actif. Devenez participant pour commencer à voter !</p>
+        </div>
+
         <!-- Statistiques si tout le monde a voté -->
         <div v-if="allVoted" class="voting-stats">
           <div class="stats-header">
@@ -119,11 +186,11 @@
 
         <!-- Message d'attente -->
         <div v-else-if="someVoted" class="waiting-message">
-          En attente des autres participants... ({{ votedCount }}/{{ participants.length }})
+          En attente des autres participants... ({{ votedCount }}/{{ activeParticipants.length }})
         </div>
 
-        <!-- Sélection des cartes -->
-        <div class="card-selection">
+        <!-- Sélection des cartes (uniquement pour les participants actifs) -->
+        <div v-if="!isCurrentUserSpectator" class="card-selection">
           <h4>Choisissez votre carte</h4>
           <div class="cards-container">
             <PokerCard
@@ -162,7 +229,7 @@ const props = defineProps({
 const emit = defineEmits(['leave'])
 
 const user = useCurrentUser()
-const { participants, subscribeToParticipants, leaveRoom, selectCard, resetRound, resetOwnCard, subscribeToRoom, loading } = useRooms()
+const { participants, subscribeToParticipants, leaveRoom, selectCard, resetRound, resetOwnCard, subscribeToRoom, toggleSpectatorMode, loading } = useRooms()
 
 let unsubscribe = null
 let unsubscribeRoom = null
@@ -172,23 +239,47 @@ const currentRoundNumber = ref(0)
 // Cartes Fibonacci pour le Planning Poker
 const fibonacciCards = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, '?', 'coffee']
 
-// Carte sélectionnée par l'utilisateur actuel
-const currentUserCard = computed(() => {
-  const currentParticipant = participants.value.find(p => p.userId === currentUserId.value)
-  return currentParticipant?.selectedCard
+// Participant actuel
+const currentParticipant = computed(() => {
+  return participants.value.find(p => p.userId === currentUserId.value)
 })
 
-// Nombre de participants ayant voté
+// Est-ce que l'utilisateur actuel est spectateur
+const isCurrentUserSpectator = computed(() => {
+  return currentParticipant.value?.isSpectator || false
+})
+
+// Carte sélectionnée par l'utilisateur actuel
+const currentUserCard = computed(() => {
+  return currentParticipant.value?.selectedCard
+})
+
+// Participants actifs (non spectateurs)
+const activeParticipants = computed(() => {
+  return participants.value.filter(p => !p.isSpectator)
+})
+
+// Spectateurs
+const spectators = computed(() => {
+  return participants.value.filter(p => p.isSpectator)
+})
+
+// Nombre de participants actifs ayant voté
 const votedCount = computed(() => {
-  return participants.value.filter(p => p.selectedCard !== null).length
+  return activeParticipants.value.filter(p => p.selectedCard !== null).length
 })
 
 // Est-ce que certains participants ont voté ?
-const someVoted = computed(() => votedCount.value > 0 && votedCount.value < participants.value.length)
+const someVoted = computed(() => {
+  return activeParticipants.value.length > 0 &&
+         votedCount.value > 0 &&
+         votedCount.value < activeParticipants.value.length
+})
 
-// Est-ce que tous les participants ont voté ?
+// Est-ce que tous les participants actifs ont voté ?
 const allVoted = computed(() => {
-  return participants.value.length > 0 && votedCount.value === participants.value.length
+  return activeParticipants.value.length > 0 &&
+         votedCount.value === activeParticipants.value.length
 })
 
 // Calculer la moyenne des votes (exclut '?' et 'coffee')
@@ -263,12 +354,23 @@ const handleLeaveRoom = async () => {
 
 // Gérer la sélection d'une carte
 const handleCardSelect = async (cardValue) => {
-  if (!user.value) return
+  if (!user.value || isCurrentUserSpectator.value) return
 
   try {
     await selectCard(props.roomId, user.value.uid, cardValue)
   } catch (err) {
     console.error('Erreur lors de la sélection de la carte:', err)
+  }
+}
+
+// Gérer le basculement en mode spectateur
+const handleToggleSpectator = async () => {
+  if (!user.value) return
+
+  try {
+    await toggleSpectatorMode(props.roomId, user.value.uid, !isCurrentUserSpectator.value)
+  } catch (err) {
+    console.error('Erreur lors du basculement en mode spectateur:', err)
   }
 }
 
@@ -362,6 +464,12 @@ onUnmounted(() => {
   font-size: 1.8rem;
 }
 
+.header-badges {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .online-indicator {
   background: #42b983;
   color: white;
@@ -369,6 +477,47 @@ onUnmounted(() => {
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+.spectator-indicator {
+  background: #6c757d;
+  color: white;
+  padding: 0.35rem 0.85rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-spectator {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-spectator:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-spectator.active {
+  background: #ffc107;
+  color: #000;
+}
+
+.btn-spectator.active:hover {
+  background: #e0a800;
 }
 
 .btn-leave {
@@ -494,6 +643,11 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
+.spectator-badge {
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
+}
+
 .participant-email {
   font-size: 0.85rem;
   color: #6c757d;
@@ -516,6 +670,38 @@ onUnmounted(() => {
   flex-shrink: 0;
   box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.3);
   animation: pulse 2s infinite;
+}
+
+.spectator-dot {
+  width: 12px;
+  height: 12px;
+  background: #6c757d;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.participant-card.spectator {
+  background: #f8f9fa;
+  opacity: 0.85;
+}
+
+.participant-card.spectator.is-you {
+  background: #fff3cd;
+  border-color: #ffc107;
+  opacity: 1;
+}
+
+.spectators-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e9ecef;
+}
+
+.spectators-section h4 {
+  margin: 0 0 1rem 0;
+  color: #6c757d;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 @keyframes pulse {
@@ -545,6 +731,43 @@ onUnmounted(() => {
 .poker-section h4 {
   margin: 0 0 1rem 0;
   color: #495057;
+  font-size: 1.1rem;
+}
+
+/* Message pour les spectateurs */
+.spectator-message {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.spectator-icon {
+  font-size: 2rem;
+}
+
+.spectator-message p {
+  margin: 0;
+  color: #856404;
+  font-weight: 500;
+}
+
+/* Message si aucun participant actif */
+.no-active-participants {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.no-active-participants p {
+  margin: 0;
+  color: #6c757d;
   font-size: 1.1rem;
 }
 

@@ -97,7 +97,8 @@ export function useRooms() {
         userPhotoURL: user.photoURL || null,
         joinedAt: serverTimestamp(),
         selectedCard: null,
-        selectedAt: null
+        selectedAt: null,
+        isSpectator: false
       }
 
       const participantRef = doc(db, 'rooms', roomId, 'participants', user.uid)
@@ -208,6 +209,30 @@ export function useRooms() {
     }
   }
 
+  // Basculer le mode spectateur
+  const toggleSpectatorMode = async (roomId, userId, isSpectator) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const participantRef = doc(db, 'rooms', roomId, 'participants', userId)
+      await updateDoc(participantRef, {
+        isSpectator: isSpectator,
+        // Si on devient spectateur, réinitialiser la carte
+        ...(isSpectator && { selectedCard: null, selectedAt: null })
+      })
+
+      return true
+    } catch (err) {
+      console.error('Erreur lors du basculement en mode spectateur:', err)
+      const errorMessage = getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Réinitialiser le tour (nouveau tour) - Incrémente le compteur de round
   const resetRound = async (roomId) => {
     try {
@@ -263,6 +288,7 @@ export function useRooms() {
     selectCard,
     resetRound,
     resetOwnCard,
-    subscribeToRoom
+    subscribeToRoom,
+    toggleSpectatorMode
   }
 }
