@@ -8,10 +8,12 @@ import Login from './components/Login.vue'
 import RoomList from './components/RoomList.vue'
 import CreateRoom from './components/CreateRoom.vue'
 import RoomView from './components/RoomView.vue'
+import AvatarUpload from './components/AvatarUpload.vue'
 
 const user = useCurrentUser()
 const currentDateTime = ref('')
 const { joinRoom, leaveRoom } = useRooms()
+const showAvatarModal = ref(false)
 
 // Gestion des vues
 const currentView = ref('room-list') // 'room-list', 'create-room', 'room-view'
@@ -111,6 +113,22 @@ const handleLeaveRoom = async () => {
   }
 }
 
+const openAvatarModal = () => {
+  showAvatarModal.value = true
+}
+
+const closeAvatarModal = () => {
+  showAvatarModal.value = false
+}
+
+const handleAvatarUploaded = (downloadURL) => {
+  console.log('Avatar mis à jour:', downloadURL)
+  // Fermer le modal après un court délai pour voir la confirmation
+  setTimeout(() => {
+    closeAvatarModal()
+  }, 500)
+}
+
 let intervalId = null
 
 onMounted(() => {
@@ -133,7 +151,13 @@ onUnmounted(() => {
   <div v-else class="app">
     <div class="user-info">
       <div class="user-details">
-        <img v-if="user.photoURL" :src="user.photoURL" alt="Avatar" class="avatar" />
+        <div class="avatar-wrapper" @click="openAvatarModal" title="Changer l'avatar">
+          <img v-if="user.photoURL" :src="user.photoURL" alt="Avatar" class="avatar" />
+          <div v-else class="avatar-placeholder">
+            {{ (user.displayName || user.email || '?').substring(0, 2).toUpperCase() }}
+          </div>
+          <div class="avatar-edit-icon">✏️</div>
+        </div>
         <div class="user-text">
           <span class="user-name">{{ user.displayName || user.email }}</span>
           <span class="datetime">{{ currentDateTime }}</span>
@@ -167,6 +191,23 @@ onUnmounted(() => {
         @leave="handleLeaveRoom"
       />
     </div>
+
+    <!-- Modal de changement d'avatar -->
+    <div v-if="showAvatarModal" class="modal-overlay" @click="closeAvatarModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Changer votre avatar</h3>
+          <button @click="closeAvatarModal" class="btn-close">×</button>
+        </div>
+        <div class="modal-body">
+          <AvatarUpload
+            :current-avatar="user?.photoURL"
+            :user-name="user?.displayName || user?.email || ''"
+            @uploaded="handleAvatarUploaded"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -195,12 +236,59 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-.avatar {
+.avatar-wrapper {
+  position: relative;
   width: 48px;
   height: 48px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.avatar-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #42b983;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border: 2px solid #42b983;
+}
+
+.avatar-edit-icon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  background: #42b983;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  border: 2px solid white;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.avatar-wrapper:hover .avatar-edit-icon {
+  opacity: 1;
 }
 
 .user-text {
@@ -243,6 +331,70 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.4rem;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.btn-close:hover {
+  background: #f8f9fa;
+  color: #2c3e50;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
 @media (max-width: 768px) {
   .user-info {
     padding: 1rem;
@@ -253,6 +405,19 @@ onUnmounted(() => {
   }
 
   .main-content {
+    padding: 1rem;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-body {
     padding: 1rem;
   }
 }
