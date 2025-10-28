@@ -10,8 +10,10 @@ import {
   deleteDoc,
   serverTimestamp,
   getDocs,
+  getDoc,
   updateDoc,
-  writeBatch
+  writeBatch,
+  increment
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
@@ -46,7 +48,8 @@ export function useRooms() {
         createdBy: user.uid,
         createdByEmail: user.email,
         createdByName: user.displayName || user.email,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        currentRound: 0
       }
 
       const roomRef = await addDoc(collection(db, 'rooms'), roomData)
@@ -190,29 +193,33 @@ export function useRooms() {
     }
   }
 
-  // Réinitialiser le tour (nouveau tour)
+  // Réinitialiser sa propre carte
+  const resetOwnCard = async (roomId, userId) => {
+    try {
+      const participantRef = doc(db, 'rooms', roomId, 'participants', userId)
+      await updateDoc(participantRef, {
+        selectedCard: null,
+        selectedAt: null
+      })
+      return true
+    } catch (err) {
+      console.error('Erreur lors de la réinitialisation de la carte:', err)
+      throw err
+    }
+  }
+
+  // Réinitialiser le tour (nouveau tour) - Incrémente le compteur de round
   const resetRound = async (roomId) => {
     try {
       loading.value = true
       error.value = null
 
-      // Récupérer tous les participants
-      const participantsSnapshot = await getDocs(
-        collection(db, 'rooms', roomId, 'participants')
-      )
-
-      // Utiliser un batch pour réinitialiser toutes les cartes en une seule transaction
-      const batch = writeBatch(db)
-
-      participantsSnapshot.forEach((participantDoc) => {
-        const participantRef = doc(db, 'rooms', roomId, 'participants', participantDoc.id)
-        batch.update(participantRef, {
-          selectedCard: null,
-          selectedAt: null
-        })
+      // Incrémenter le numéro de round dans le salon de manière atomique
+      const roomRef = doc(db, 'rooms', roomId)
+      await updateDoc(roomRef, {
+        currentRound: increment(1)
       })
 
-      await batch.commit()
       return true
     } catch (err) {
       console.error('Erreur lors de la réinitialisation du tour:', err)
@@ -222,6 +229,24 @@ export function useRooms() {
     } finally {
       loading.value = false
     }
+  }
+
+  // Écouter les changements d'un salon spécifique
+  const subscribeToRoom = (roomId, callback) => {
+    const roomRef = doc(db, 'rooms', roomId)
+
+    return onSnapshot(roomRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const roomData = {
+          id: snapshot.id,
+          ...snapshot.data()
+        }
+        if (callback) callback(roomData)
+      }
+    }, (err) => {
+      console.error('Erreur lors de l\'écoute du salon:', err)
+      error.value = getFirestoreErrorMessage(err)
+    })
   }
 
   return {
@@ -236,6 +261,8 @@ export function useRooms() {
     subscribeToParticipants,
     getParticipantCount,
     selectCard,
-    resetRound
+    resetRound,
+    resetOwnCard,
+    subscribeToRoom
   }
 }

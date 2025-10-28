@@ -162,10 +162,12 @@ const props = defineProps({
 const emit = defineEmits(['leave'])
 
 const user = useCurrentUser()
-const { participants, subscribeToParticipants, leaveRoom, selectCard, resetRound, loading } = useRooms()
+const { participants, subscribeToParticipants, leaveRoom, selectCard, resetRound, resetOwnCard, subscribeToRoom, loading } = useRooms()
 
 let unsubscribe = null
+let unsubscribeRoom = null
 const currentUserId = computed(() => user.value?.uid)
+const currentRoundNumber = ref(0)
 
 // Cartes Fibonacci pour le Planning Poker
 const fibonacciCards = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, '?', 'coffee']
@@ -292,6 +294,23 @@ onMounted(() => {
   // Écouter les participants du salon
   unsubscribe = subscribeToParticipants(props.roomId)
 
+  // Écouter les changements du salon (notamment currentRound)
+  unsubscribeRoom = subscribeToRoom(props.roomId, (roomData) => {
+    const newRound = roomData.currentRound || 0
+
+    // Si le round a changé et qu'on avait déjà un round précédent
+    if (newRound > currentRoundNumber.value && currentRoundNumber.value > 0) {
+      // Réinitialiser automatiquement notre propre carte
+      if (user.value) {
+        resetOwnCard(props.roomId, user.value.uid).catch(err => {
+          console.error('Erreur lors de la réinitialisation de la carte:', err)
+        })
+      }
+    }
+
+    currentRoundNumber.value = newRound
+  })
+
   // Ajouter un listener pour la fermeture de la fenêtre
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
@@ -305,6 +324,9 @@ onUnmounted(() => {
   // Nettoyer les listeners
   if (unsubscribe) {
     unsubscribe()
+  }
+  if (unsubscribeRoom) {
+    unsubscribeRoom()
   }
   window.removeEventListener('beforeunload', handleBeforeUnload)
 })
