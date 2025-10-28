@@ -203,6 +203,28 @@
               @select="handleCardSelect"
             />
           </div>
+
+          <!-- Saisie d'une valeur personnalisée -->
+          <div class="custom-card-input">
+            <h4>Ou saisissez une valeur personnalisée</h4>
+            <div class="input-group">
+              <input
+                v-model="customCardValue"
+                type="text"
+                placeholder="Ex: ∞, 🚀, 100, TBD..."
+                maxlength="10"
+                @keyup.enter="handleCustomCardSubmit"
+                :disabled="loading"
+              />
+              <button
+                @click="handleCustomCardSubmit"
+                :disabled="!customCardValue.trim() || loading"
+                class="btn-submit-custom"
+              >
+                Envoyer
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -235,6 +257,7 @@ let unsubscribe = null
 let unsubscribeRoom = null
 const currentUserId = computed(() => user.value?.uid)
 const currentRoundNumber = ref(0)
+const customCardValue = ref('')
 
 // Cartes Fibonacci pour le Planning Poker
 const fibonacciCards = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, '?', 'coffee']
@@ -360,6 +383,18 @@ const handleCardSelect = async (cardValue) => {
     await selectCard(props.roomId, user.value.uid, cardValue)
   } catch (err) {
     console.error('Erreur lors de la sélection de la carte:', err)
+  }
+}
+
+// Gérer la soumission d'une carte personnalisée
+const handleCustomCardSubmit = async () => {
+  if (!user.value || !customCardValue.value.trim() || isCurrentUserSpectator.value) return
+
+  try {
+    await selectCard(props.roomId, user.value.uid, customCardValue.value.trim())
+    customCardValue.value = '' // Réinitialiser le champ après envoi
+  } catch (err) {
+    console.error('Erreur lors de la sélection de la carte personnalisée:', err)
   }
 }
 
@@ -922,6 +957,67 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+/* Saisie d'une carte personnalisée */
+.custom-card-input {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e9ecef;
+}
+
+.custom-card-input h4 {
+  margin-bottom: 1rem;
+}
+
+.input-group {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #42b983;
+}
+
+.input-group input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.btn-submit-custom {
+  background: #42b983;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn-submit-custom:hover:not(:disabled) {
+  background: #359268;
+  transform: translateY(-2px);
+}
+
+.btn-submit-custom:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 @media (max-width: 1024px) {
   .room-content {
     grid-template-columns: 1fr;
@@ -970,6 +1066,10 @@ onUnmounted(() => {
 
   .cards-container {
     gap: 0.75rem;
+  }
+
+  .input-group {
+    flex-direction: column;
   }
 }
 </style>
