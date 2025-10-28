@@ -15,7 +15,12 @@
       </div>
 
       <div v-if="error" class="error-message">
-        {{ error }}
+        <strong>Erreur :</strong> {{ error }}
+        <div v-if="error.includes('Firestore')" class="error-help">
+          <a href="https://console.firebase.google.com" target="_blank" rel="noopener">
+            → Ouvrir la console Firebase
+          </a>
+        </div>
       </div>
 
       <div class="button-group">
@@ -150,6 +155,22 @@ button:disabled {
   border-radius: 4px;
   margin-bottom: 1rem;
   border-left: 4px solid #c33;
+}
+
+.error-help {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #fcc;
+}
+
+.error-help a {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.error-help a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 600px) {

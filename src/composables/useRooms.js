@@ -19,6 +19,20 @@ export function useRooms() {
   const loading = ref(false)
   const error = ref(null)
 
+  // Formater les messages d'erreur Firestore
+  const getFirestoreErrorMessage = (err) => {
+    if (err.code === 'permission-denied') {
+      return 'Permissions Firestore non configurées. Veuillez configurer les règles de sécurité dans la console Firebase.'
+    }
+    if (err.code === 'unavailable') {
+      return 'Firestore n\'est pas disponible. Vérifiez que Firestore est activé dans votre projet Firebase.'
+    }
+    if (err.code === 'not-found') {
+      return 'Base de données Firestore introuvable. Activez Firestore dans la console Firebase.'
+    }
+    return err.message || 'Une erreur inconnue est survenue.'
+  }
+
   // Créer un nouveau salon
   const createRoom = async (roomName, user) => {
     try {
@@ -37,8 +51,9 @@ export function useRooms() {
       return roomRef.id
     } catch (err) {
       console.error('Erreur lors de la création du salon:', err)
-      error.value = err.message
-      throw err
+      const errorMessage = getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
     } finally {
       loading.value = false
     }
@@ -60,7 +75,7 @@ export function useRooms() {
       if (callback) callback(roomsList)
     }, (err) => {
       console.error('Erreur lors de l\'écoute des salons:', err)
-      error.value = err.message
+      error.value = getFirestoreErrorMessage(err)
     })
   }
 
@@ -84,8 +99,9 @@ export function useRooms() {
       return true
     } catch (err) {
       console.error('Erreur lors de la jonction au salon:', err)
-      error.value = err.message
-      throw err
+      const errorMessage = getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
     } finally {
       loading.value = false
     }
@@ -103,8 +119,9 @@ export function useRooms() {
       return true
     } catch (err) {
       console.error('Erreur lors de la sortie du salon:', err)
-      error.value = err.message
-      throw err
+      const errorMessage = getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
     } finally {
       loading.value = false
     }
@@ -129,7 +146,7 @@ export function useRooms() {
       if (callback) callback(participantsList)
     }, (err) => {
       console.error('Erreur lors de l\'écoute des participants:', err)
-      error.value = err.message
+      error.value = getFirestoreErrorMessage(err)
     })
   }
 

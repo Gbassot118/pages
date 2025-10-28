@@ -7,6 +7,8 @@
       </button>
     </div>
 
+    <FirestoreSetupAlert v-if="error && error.includes('Firestore')" />
+
     <div v-if="loading && rooms.length === 0" class="loading">
       Chargement des salons...
     </div>
@@ -64,6 +66,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRooms } from '../composables/useRooms'
+import FirestoreSetupAlert from './FirestoreSetupAlert.vue'
 
 const props = defineProps({
   currentRoomId: {
@@ -74,7 +77,7 @@ const props = defineProps({
 
 defineEmits(['create-room', 'join-room', 'leave-room'])
 
-const { rooms, subscribeToRooms, getParticipantCount, loading } = useRooms()
+const { rooms, subscribeToRooms, getParticipantCount, loading, error } = useRooms()
 const roomsWithCounts = ref([])
 let unsubscribe = null
 
