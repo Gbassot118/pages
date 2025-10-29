@@ -73,6 +73,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { collection, onSnapshot, query } from 'firebase/firestore'
+import { db } from '../firebase'
 import { useRooms } from '../composables/useRooms'
 import FirestoreSetupAlert from './FirestoreSetupAlert.vue'
 
@@ -85,21 +87,56 @@ const props = defineProps({
 
 defineEmits(['create-room', 'join-room', 'leave-room', 'delete-room'])
 
-const { rooms, subscribeToRooms, getParticipantCount, deleteRoom, loading, error } = useRooms()
+const { rooms, subscribeToRooms, deleteRoom, loading, error } = useRooms()
 const roomsWithCounts = ref([])
-let unsubscribe = null
+const participantCounts = ref({})
+let unsubscribeRooms = null
+const participantUnsubscribers = new Map()
 
-const updateParticipantCounts = async () => {
-  const updatedRooms = await Promise.all(
-    rooms.value.map(async (room) => {
-      const count = await getParticipantCount(room.id)
-      return {
-        ...room,
-        participantCount: count
-      }
-    })
-  )
-  roomsWithCounts.value = updatedRooms
+// Souscrire aux participants d'un salon spécifique
+const subscribeToRoomParticipants = (roomId) => {
+  // Si déjà abonné, ne pas recréer le listener
+  if (participantUnsubscribers.has(roomId)) {
+    return
+  }
+
+  const participantsRef = collection(db, 'rooms', roomId, 'participants')
+  const unsubscribe = onSnapshot(query(participantsRef), (snapshot) => {
+    participantCounts.value[roomId] = snapshot.size
+    updateRoomsWithCounts()
+  }, (err) => {
+    console.error(`Erreur lors de l'écoute des participants du salon ${roomId}:`, err)
+  })
+
+  participantUnsubscribers.set(roomId, unsubscribe)
+}
+
+// Mettre à jour la liste des salons avec les compteurs
+const updateRoomsWithCounts = () => {
+  roomsWithCounts.value = rooms.value.map((room) => ({
+    ...room,
+    participantCount: participantCounts.value[room.id] || 0
+  }))
+}
+
+// Gérer les changements de la liste des salons
+const handleRoomsChange = () => {
+  // Désabonner des salons qui n'existent plus
+  const currentRoomIds = new Set(rooms.value.map(r => r.id))
+  for (const [roomId, unsubscribe] of participantUnsubscribers.entries()) {
+    if (!currentRoomIds.has(roomId)) {
+      unsubscribe()
+      participantUnsubscribers.delete(roomId)
+      delete participantCounts.value[roomId]
+    }
+  }
+
+  // S'abonner aux nouveaux salons
+  rooms.value.forEach((room) => {
+    subscribeToRoomParticipants(room.id)
+  })
+
+  updateRoomsWithCounts()
 }
 
 const handleDeleteRoom = async (roomId, roomName) => {
@@ -125,19 +162,22 @@ const formatDate = (timestamp) => {
 }
 
 onMounted(() => {
-  unsubscribe = subscribeToRooms(async () => {
-    await updateParticipantCounts()
-  })
+  unsubscribeRooms = subscribeToRooms(handleRoomsChange)
 })
 
 onUnmounted(() => {
-  if (unsubscribe) {
+  if (unsubscribeRooms) {
+    unsubscribeRooms()
+  }
+  // Désabonner de tous les listeners de participants
+  for (const unsubscribe of participantUnsubscribers.values()) {
     unsubscribe()
   }
+  participantUnsubscribers.clear()
 })
 
-watch(() => props.currentRoomId, async () => {
-  await updateParticipantCounts()
+watch(() => props.currentRoomId, () => {
+  updateRoomsWithCounts()
 })
 </script>
 
