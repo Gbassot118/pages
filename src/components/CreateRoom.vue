@@ -62,17 +62,17 @@ const handleCreateRoom = async () => {
 
 <style scoped>
 .create-room {
-  background: white;
+  background: var(--gl-white);
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
   max-width: 500px;
   margin: 0 auto;
 }
 
 h2 {
   margin: 0 0 1.5rem 0;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   font-size: 1.5rem;
 }
 
@@ -83,27 +83,28 @@ h2 {
 label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   font-weight: 500;
 }
 
 input {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  border: 2px solid var(--gl-gray-light);
+  border-radius: 6px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
   box-sizing: border-box;
 }
 
 input:focus {
   outline: none;
-  border-color: #42b983;
+  border-color: var(--gl-red-primary);
+  box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
 }
 
 input:disabled {
-  background: #f5f5f5;
+  background: var(--gl-gray-lighter);
   cursor: not-allowed;
 }
 
@@ -116,30 +117,42 @@ button {
   flex: 1;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
 }
 
 button[type="submit"] {
-  background: #42b983;
-  color: white;
+  background: var(--gl-red-primary);
+  color: var(--gl-white);
 }
 
 button[type="submit"]:hover:not(:disabled) {
-  background: #359268;
+  background: var(--gl-red-dark);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+button[type="submit"]:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 button[type="button"] {
-  background: #6c757d;
-  color: white;
+  background: var(--gl-gray-medium);
+  color: var(--gl-white);
 }
 
 button[type="button"]:hover:not(:disabled) {
-  background: #5a6268;
+  background: #555555;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+button[type="button"]:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 button:disabled {
@@ -150,11 +163,11 @@ button:disabled {
 
 .error-message {
   background: #fee;
-  color: #c33;
+  color: var(--color-danger);
   padding: 0.75rem;
-  border-radius: 4px;
+  border-radius: 8px;
   margin-bottom: 1rem;
-  border-left: 4px solid #c33;
+  border-left: 4px solid var(--color-danger);
 }
 
 .error-help {
@@ -164,7 +177,7 @@ button:disabled {
 }
 
 .error-help a {
-  color: #0066cc;
+  color: var(--color-info);
   text-decoration: none;
   font-weight: 500;
 }
@@ -173,13 +186,48 @@ button:disabled {
   text-decoration: underline;
 }
 
+/* Tablette */
+@media (max-width: 768px) {
+  .create-room {
+    padding: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+}
+
+/* Mobile */
 @media (max-width: 600px) {
   .create-room {
     padding: 1.5rem;
   }
 
+  h2 {
+    font-size: 1.3rem;
+  }
+
   .button-group {
     flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  input {
+    font-size: 16px; /* Évite le zoom automatique sur iOS */
+  }
+}
+
+/* Très petit mobile */
+@media (max-width: 480px) {
+  .create-room {
+    padding: 1.25rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
   }
 }
 </style>

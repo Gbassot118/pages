@@ -149,28 +149,28 @@ const toggleMode = () => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gl-red-primary) 0%, var(--gl-red-dark) 100%);
   padding: 20px;
 }
 
 .login-card {
-  background: white;
+  background: var(--gl-white);
   border-radius: 16px;
   padding: 48px 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   max-width: 420px;
   width: 100%;
 }
 
 h1 {
-  color: #333;
+  color: var(--gl-gray-dark);
   font-size: 2em;
   margin: 0 0 12px 0;
   text-align: center;
 }
 
 .subtitle {
-  color: #666;
+  color: var(--gl-gray-medium);
   text-align: center;
   margin: 0 0 32px 0;
   font-size: 1em;
@@ -178,12 +178,13 @@ h1 {
 
 .error-message {
   background: #fee;
-  color: #c33;
+  color: var(--color-danger);
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 0.9em;
   text-align: center;
+  border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
 .email-form {
@@ -199,14 +200,14 @@ h1 {
 }
 
 .form-group label {
-  color: #333;
+  color: var(--gl-gray-dark);
   font-weight: 500;
   font-size: 0.95em;
 }
 
 .form-group input {
   padding: 12px 16px;
-  border: 2px solid #ddd;
+  border: 2px solid var(--gl-gray-light);
   border-radius: 8px;
   font-size: 1em;
   transition: all 0.3s ease;
@@ -214,12 +215,12 @@ h1 {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--gl-red-primary);
+  box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
 }
 
 .form-group input:disabled {
-  background: #f5f5f5;
+  background: var(--gl-gray-lighter);
   cursor: not-allowed;
 }
 
@@ -229,19 +230,24 @@ h1 {
   justify-content: center;
   gap: 12px;
   padding: 14px 24px;
-  border: 2px solid #ddd;
+  border: 2px solid var(--gl-gray-light);
   border-radius: 8px;
-  background: white;
+  background: var(--gl-white);
   font-size: 1em;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #333;
+  color: var(--gl-gray-dark);
+  min-height: 48px;
 }
 
 .login-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .login-button:disabled {
@@ -250,15 +256,15 @@ h1 {
 }
 
 .email-button {
-  background: #667eea;
-  color: white;
-  border-color: #667eea;
+  background: var(--gl-red-primary);
+  color: var(--gl-white);
+  border-color: var(--gl-red-primary);
   margin-top: 8px;
 }
 
 .email-button:hover:not(:disabled) {
-  background: #5568d3;
-  border-color: #5568d3;
+  background: var(--gl-red-dark);
+  border-color: var(--gl-red-dark);
 }
 
 .toggle-mode {
@@ -269,15 +275,16 @@ h1 {
 .toggle-button {
   background: none;
   border: none;
-  color: #667eea;
+  color: var(--gl-red-primary);
   cursor: pointer;
   font-size: 0.95em;
   text-decoration: underline;
   padding: 8px;
+  min-height: 44px;
 }
 
 .toggle-button:hover:not(:disabled) {
-  color: #5568d3;
+  color: var(--gl-red-dark);
 }
 
 .toggle-button:disabled {
@@ -289,7 +296,7 @@ h1 {
   display: flex;
   align-items: center;
   margin: 24px 0;
-  color: #999;
+  color: var(--gl-gray-medium);
   font-size: 0.9em;
 }
 
@@ -298,7 +305,7 @@ h1 {
   content: '';
   flex: 1;
   height: 1px;
-  background: #ddd;
+  background: var(--gl-gray-light);
 }
 
 .divider span {
@@ -317,7 +324,7 @@ h1 {
 .loading {
   text-align: center;
   margin-top: 20px;
-  color: #667eea;
+  color: var(--gl-red-primary);
   font-weight: 500;
 }
 
@@ -325,13 +332,67 @@ svg {
   flex-shrink: 0;
 }
 
+/* Tablette */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 40px 32px;
+  }
+
+  h1 {
+    font-size: 1.85em;
+  }
+
+  .subtitle {
+    font-size: 0.95em;
+  }
+}
+
+/* Mobile */
 @media (max-width: 480px) {
+  .login-container {
+    padding: 12px;
+  }
+
   .login-card {
     padding: 32px 24px;
   }
 
   h1 {
-    font-size: 1.75em;
+    font-size: 1.65em;
+  }
+
+  .subtitle {
+    font-size: 0.9em;
+    margin-bottom: 24px;
+  }
+
+  .form-group input,
+  .login-button,
+  .toggle-button {
+    font-size: 16px; /* Évite le zoom automatique sur iOS */
+  }
+
+  .email-form {
+    gap: 16px;
+  }
+
+  .login-button {
+    padding: 12px 20px;
+  }
+}
+
+/* Très petit mobile */
+@media (max-width: 360px) {
+  .login-card {
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 1.5em;
   }
 }
 </style>

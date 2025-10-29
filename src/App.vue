@@ -175,7 +175,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gl-red-primary) 0%, var(--gl-red-dark) 100%);
 }
 
 .user-info {
@@ -183,8 +183,8 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--gl-white);
+  box-shadow: var(--shadow-md);
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -193,6 +193,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .avatar {
@@ -200,41 +202,57 @@ onUnmounted(() => {
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #42b983;
+  border: 3px solid var(--gl-red-primary);
+  flex-shrink: 0;
 }
 
 .user-text {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .user-name {
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   font-weight: 600;
   font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .datetime {
-  color: #6c757d;
+  color: var(--gl-gray-medium);
   font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .logout-button {
-  background: #dc3545;
-  color: white;
+  background: var(--gl-red-primary);
+  color: var(--gl-white);
   border: none;
   padding: 0.65rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .logout-button:hover {
-  background: #c82333;
+  background: var(--gl-red-dark);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.logout-button:active {
+  transform: translateY(0);
 }
 
 .main-content {
@@ -243,17 +261,64 @@ onUnmounted(() => {
   overflow-y: auto;
 }
 
+/* Tablette */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .user-info {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .user-details {
+    gap: 0.75rem;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+  }
+
+  .datetime {
+    font-size: 0.7rem;
+  }
+
+  .logout-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .main-content {
     padding: 1rem;
+  }
+}
+
+/* Très petit mobile */
+@media (max-width: 480px) {
+  .user-info {
+    padding: 0.5rem 0.75rem;
   }
 
   .user-text {
     display: none;
   }
 
+  .logout-button {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
   .main-content {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 }
 </style>
