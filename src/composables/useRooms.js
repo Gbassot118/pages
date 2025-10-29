@@ -135,6 +135,33 @@ export function useRooms() {
     }
   }
 
+  // Supprimer un salon vide
+  const deleteRoom = async (roomId) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      // Vérifier que le salon est vide
+      const participantCount = await getParticipantCount(roomId)
+      if (participantCount > 0) {
+        throw new Error('Impossible de supprimer un salon qui contient des participants')
+      }
+
+      // Supprimer le salon
+      const roomRef = doc(db, 'rooms', roomId)
+      await deleteDoc(roomRef)
+
+      return true
+    } catch (err) {
+      console.error('Erreur lors de la suppression du salon:', err)
+      const errorMessage = err.message || getFirestoreErrorMessage(err)
+      error.value = errorMessage
+      throw new Error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Écouter les participants d'un salon en temps réel
   const subscribeToParticipants = (roomId, callback) => {
     const q = query(
@@ -283,6 +310,7 @@ export function useRooms() {
     subscribeToRooms,
     joinRoom,
     leaveRoom,
+    deleteRoom,
     subscribeToParticipants,
     getParticipantCount,
     selectCard,

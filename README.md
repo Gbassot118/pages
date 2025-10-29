@@ -6,15 +6,31 @@ Application Vue.js 3 déployée automatiquement sur GitHub Pages.
 
 - **Vue 3** - Framework JavaScript progressif
 - **Vite** - Build tool rapide et moderne
+- **Firebase** - Backend-as-a-Service (Firestore, Authentication)
 - **GitHub Actions** - CI/CD pour le déploiement automatique
 - **GitHub Pages** - Hébergement statique
 
 ## Fonctionnalités
 
-- Affichage "Hello World" avec design moderne
-- Date et heure en temps réel (mise à jour chaque seconde)
-- Design responsive avec gradient
-- Déploiement automatique à chaque push sur main
+- **Salons de discussion** - Créer et rejoindre des salons
+- **Planning Poker** - Voter avec des cartes Fibonacci ou personnalisées
+- **Mode spectateur** - Observer sans participer aux votes
+- **Temps réel** - Synchronisation instantanée via Firestore
+- **Gestion des salons** - Supprimer les salons vides
+- **Avatars personnalisés** - Support des photos de profil
+- Design responsive et moderne
+
+## Configuration Firebase
+
+Cette application utilise Firebase pour l'authentification et Firestore pour la base de données.
+
+### Configuration des règles Firestore
+
+**Important** : Pour permettre à n'importe quel utilisateur de supprimer un salon vide, vous devez configurer les règles Firestore dans la console Firebase.
+
+Consultez le fichier [FIRESTORE_SETUP.md](./FIRESTORE_SETUP.md) pour les instructions détaillées.
+
+Les règles Firestore recommandées sont disponibles dans le fichier [firestore.rules](./firestore.rules).
 
 ## Développement local
 
