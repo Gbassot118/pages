@@ -482,20 +482,21 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--gl-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
   flex-wrap: wrap;
   gap: 1rem;
 }
 
 .room-title {
   flex: 1;
+  min-width: 200px;
 }
 
 .room-title h2 {
   margin: 0 0 0.5rem 0;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   font-size: 1.8rem;
 }
 
@@ -506,21 +507,21 @@ onUnmounted(() => {
 }
 
 .online-indicator {
-  background: #42b983;
-  color: white;
+  background: var(--color-success);
+  color: var(--gl-white);
   padding: 0.35rem 0.85rem;
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .spectator-indicator {
-  background: #6c757d;
-  color: white;
+  background: var(--gl-gray-medium);
+  color: var(--gl-white);
   padding: 0.35rem 0.85rem;
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .header-actions {
@@ -530,25 +531,31 @@ onUnmounted(() => {
 }
 
 .btn-spectator {
-  background: #6c757d;
-  color: white;
+  background: var(--gl-gray-medium);
+  color: var(--gl-white);
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
 }
 
 .btn-spectator:hover {
-  background: #5a6268;
+  background: #555555;
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-spectator:active {
+  transform: translateY(0);
 }
 
 .btn-spectator.active {
-  background: #ffc107;
-  color: #000;
+  background: var(--color-warning);
+  color: var(--gl-black);
 }
 
 .btn-spectator.active:hover {
@@ -556,20 +563,26 @@ onUnmounted(() => {
 }
 
 .btn-leave {
-  background: #dc3545;
-  color: white;
+  background: var(--gl-red-primary);
+  color: var(--gl-white);
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
 }
 
 .btn-leave:hover {
-  background: #c82333;
+  background: var(--gl-red-dark);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-leave:active {
+  transform: translateY(0);
 }
 
 .room-content {
@@ -579,19 +592,19 @@ onUnmounted(() => {
 }
 
 .participants-section {
-  background: white;
-  border-radius: 8px;
+  background: var(--gl-white);
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   max-height: calc(100vh - 250px);
   overflow-y: auto;
 }
 
 .participants-section h3 {
   margin: 0 0 1.5rem 0;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   font-size: 1.2rem;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid var(--gl-gray-light);
   padding-bottom: 0.75rem;
 }
 
@@ -599,7 +612,7 @@ onUnmounted(() => {
 .empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: #6c757d;
+  color: var(--gl-gray-medium);
 }
 
 .participants-list {
@@ -613,20 +626,20 @@ onUnmounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  background: var(--gl-gray-lighter);
+  border-radius: 10px;
   border: 2px solid transparent;
   transition: all 0.3s;
   position: relative;
 }
 
 .participant-card:hover {
-  background: #e9ecef;
+  background: var(--gl-gray-light);
 }
 
 .participant-card.is-you {
-  background: #e8f5e9;
-  border-color: #42b983;
+  background: #fff5f5;
+  border-color: var(--gl-red-primary);
 }
 
 .participant-avatar {
@@ -646,11 +659,11 @@ onUnmounted(() => {
 .avatar-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gl-red-primary) 0%, var(--gl-red-dark) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--gl-white);
   font-weight: bold;
   font-size: 1.2rem;
 }
@@ -662,19 +675,20 @@ onUnmounted(() => {
 
 .participant-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   margin-bottom: 0.25rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .you-badge {
-  background: #42b983;
-  color: white;
+  background: var(--gl-red-primary);
+  color: var(--gl-white);
   font-size: 0.75rem;
   padding: 0.15rem 0.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 500;
 }
 
@@ -685,7 +699,7 @@ onUnmounted(() => {
 
 .participant-email {
   font-size: 0.85rem;
-  color: #6c757d;
+  color: var(--gl-gray-medium);
   margin-bottom: 0.25rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -700,29 +714,29 @@ onUnmounted(() => {
 .online-dot {
   width: 12px;
   height: 12px;
-  background: #42b983;
+  background: var(--color-success);
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.3);
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
   animation: pulse 2s infinite;
 }
 
 .spectator-dot {
   width: 12px;
   height: 12px;
-  background: #6c757d;
+  background: var(--gl-gray-medium);
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .participant-card.spectator {
-  background: #f8f9fa;
+  background: var(--gl-gray-lighter);
   opacity: 0.85;
 }
 
 .participant-card.spectator.is-you {
   background: #fff3cd;
-  border-color: #ffc107;
+  border-color: var(--color-warning);
   opacity: 1;
 }
 
@@ -741,31 +755,31 @@ onUnmounted(() => {
 
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.3);
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
   }
   50% {
-    box-shadow: 0 0 0 6px rgba(66, 185, 131, 0.1);
+    box-shadow: 0 0 0 6px rgba(40, 167, 69, 0.1);
   }
 }
 
 .poker-section {
-  background: white;
-  border-radius: 8px;
+  background: var(--gl-white);
+  border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .poker-section h3 {
   margin: 0 0 1.5rem 0;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
   font-size: 1.4rem;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid var(--gl-gray-light);
   padding-bottom: 0.75rem;
 }
 
 .poker-section h4 {
   margin: 0 0 1rem 0;
-  color: #495057;
+  color: var(--gl-gray-dark);
   font-size: 1.1rem;
 }
 
@@ -776,13 +790,14 @@ onUnmounted(() => {
   gap: 1rem;
   padding: 1rem 1.5rem;
   background: #fff3cd;
-  border: 2px solid #ffc107;
-  border-radius: 8px;
+  border: 2px solid var(--color-warning);
+  border-radius: 10px;
   margin-bottom: 1.5rem;
 }
 
 .spectator-icon {
   font-size: 2rem;
+  flex-shrink: 0;
 }
 
 .spectator-message p {
@@ -795,14 +810,14 @@ onUnmounted(() => {
 .no-active-participants {
   text-align: center;
   padding: 2rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  background: var(--gl-gray-lighter);
+  border-radius: 10px;
   margin-bottom: 2rem;
 }
 
 .no-active-participants p {
   margin: 0;
-  color: #6c757d;
+  color: var(--gl-gray-medium);
   font-size: 1.1rem;
 }
 
@@ -813,8 +828,8 @@ onUnmounted(() => {
   gap: 1.5rem;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  background: var(--gl-gray-lighter);
+  border-radius: 10px;
   justify-content: center;
 }
 
@@ -848,18 +863,18 @@ onUnmounted(() => {
 .avatar-mini-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gl-red-primary) 0%, var(--gl-red-dark) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--gl-white);
   font-weight: bold;
   font-size: 0.9rem;
 }
 
 .participant-mini-name {
   font-size: 0.85rem;
-  color: #495057;
+  color: var(--gl-gray-dark);
   font-weight: 500;
   text-align: center;
   max-width: 100px;
@@ -872,9 +887,10 @@ onUnmounted(() => {
 .voting-stats {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 8px;
-  color: white;
+  background: linear-gradient(135deg, var(--gl-red-primary) 0%, var(--gl-red-dark) 100%);
+  border-radius: 10px;
+  color: var(--gl-white);
+  box-shadow: var(--shadow-md);
 }
 
 .stats-header {
@@ -888,25 +904,30 @@ onUnmounted(() => {
 
 .stats-header h4 {
   margin: 0;
-  color: white;
+  color: var(--gl-white);
 }
 
 .btn-new-round {
-  background: white;
-  color: #667eea;
+  background: var(--gl-white);
+  color: var(--gl-red-primary);
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
 }
 
 .btn-new-round:hover {
-  background: #f8f9fa;
+  background: var(--gl-gray-lighter);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-new-round:active {
+  transform: translateY(0);
 }
 
 .stats-content {
@@ -936,8 +957,8 @@ onUnmounted(() => {
   text-align: center;
   padding: 1.5rem;
   background: #fff3cd;
-  border: 2px solid #ffc107;
-  border-radius: 8px;
+  border: 2px solid var(--color-warning);
+  border-radius: 10px;
   color: #856404;
   font-weight: 500;
   margin-bottom: 2rem;
@@ -978,38 +999,45 @@ onUnmounted(() => {
 .input-group input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  border: 2px solid var(--gl-gray-light);
+  border-radius: 6px;
   font-size: 1rem;
   transition: border-color 0.3s;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #42b983;
+  border-color: var(--gl-red-primary);
+  box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
 }
 
 .input-group input:disabled {
-  background: #f5f5f5;
+  background: var(--gl-gray-lighter);
   cursor: not-allowed;
 }
 
 .btn-submit-custom {
-  background: #42b983;
-  color: white;
+  background: var(--gl-red-primary);
+  color: var(--gl-white);
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
   white-space: nowrap;
+  min-height: 44px;
 }
 
 .btn-submit-custom:hover:not(:disabled) {
-  background: #359268;
+  background: var(--gl-red-dark);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-submit-custom:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-submit-custom:disabled {
@@ -1018,6 +1046,7 @@ onUnmounted(() => {
   transform: none !important;
 }
 
+/* Tablette */
 @media (max-width: 1024px) {
   .room-content {
     grid-template-columns: 1fr;
@@ -1032,12 +1061,27 @@ onUnmounted(() => {
   }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
   .room-header {
     flex-direction: column;
     align-items: stretch;
+    padding: 1.25rem;
   }
 
+  .room-title h2 {
+    font-size: 1.5rem;
+  }
+
+  .header-badges {
+    justify-content: center;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .btn-spectator,
   .btn-leave {
     width: 100%;
   }
@@ -1046,13 +1090,25 @@ onUnmounted(() => {
     padding: 1rem;
   }
 
+  .participant-card {
+    padding: 0.85rem;
+  }
+
   .poker-section {
-    padding: 1rem;
+    padding: 1.25rem;
+  }
+
+  .poker-section h3 {
+    font-size: 1.25rem;
+  }
+
+  .poker-section h4 {
+    font-size: 1rem;
   }
 
   .voting-area {
     padding: 1rem;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   .stats-header {
@@ -1070,6 +1126,104 @@ onUnmounted(() => {
 
   .input-group {
     flex-direction: column;
+  }
+
+  .btn-submit-custom {
+    width: 100%;
+  }
+
+  .spectator-message {
+    padding: 0.85rem 1rem;
+  }
+
+  .spectator-icon {
+    font-size: 1.5rem;
+  }
+
+  .spectator-message p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Très petit mobile */
+@media (max-width: 480px) {
+  .room-header {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .room-title h2 {
+    font-size: 1.35rem;
+  }
+
+  .online-indicator,
+  .spectator-indicator {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .btn-spectator,
+  .btn-leave {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .participants-section,
+  .poker-section {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .participant-card {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .participant-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .participant-name {
+    font-size: 0.9rem;
+  }
+
+  .participant-email {
+    font-size: 0.8rem;
+  }
+
+  .poker-section h3 {
+    font-size: 1.2rem;
+  }
+
+  .poker-section h4 {
+    font-size: 0.95rem;
+  }
+
+  .voting-area {
+    padding: 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .voting-stats {
+    padding: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .cards-container {
+    gap: 0.6rem;
+  }
+
+  .input-group input {
+    font-size: 16px; /* Évite le zoom automatique sur iOS */
+  }
+
+  .custom-card-input {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
   }
 }
 </style>

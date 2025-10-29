@@ -65,9 +65,9 @@ const handleClick = () => {
   position: relative;
   width: 80px;
   height: 110px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: var(--gl-white);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   /* Transitions uniquement pour box-shadow et border, PAS pour transform */
   transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -85,12 +85,12 @@ const handleClick = () => {
 
 .poker-card.selectable:hover {
   transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 16px rgba(227, 6, 19, 0.25);
 }
 
 .poker-card.selected {
-  border: 3px solid #42b983;
-  box-shadow: 0 4px 12px rgba(66, 185, 131, 0.4);
+  border: 3px solid var(--gl-red-primary);
+  box-shadow: 0 4px 12px rgba(227, 6, 19, 0.4);
 }
 
 .poker-card.hidden {
@@ -108,31 +108,31 @@ const handleClick = () => {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .card-front {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid #e9ecef;
+  background: linear-gradient(135deg, var(--gl-white) 0%, var(--gl-gray-lighter) 100%);
+  border: 2px solid var(--gl-gray-light);
 }
 
 .card-back {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gl-red-primary) 0%, var(--gl-red-dark) 100%);
   transform: rotateY(180deg);
 }
 
 .card-value {
   font-size: 2rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--gl-gray-dark);
 }
 
 .card-pattern {
   font-size: 2.5rem;
-  color: white;
+  color: var(--gl-white);
   font-weight: bold;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -151,7 +151,23 @@ const handleClick = () => {
   }
 }
 
-/* Responsive */
+/* Tablette */
+@media (max-width: 1024px) {
+  .poker-card {
+    width: 70px;
+    height: 95px;
+  }
+
+  .card-value {
+    font-size: 1.75rem;
+  }
+
+  .card-pattern {
+    font-size: 2.25rem;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .poker-card {
     width: 60px;
@@ -164,6 +180,48 @@ const handleClick = () => {
 
   .card-pattern {
     font-size: 2rem;
+  }
+}
+
+/* Très petit mobile */
+@media (max-width: 480px) {
+  .poker-card {
+    width: 55px;
+    height: 75px;
+    border-radius: 8px;
+  }
+
+  .card-front,
+  .card-back {
+    border-radius: 8px;
+  }
+
+  .card-value {
+    font-size: 1.35rem;
+  }
+
+  .card-pattern {
+    font-size: 1.75rem;
+  }
+
+  .poker-card.selectable:hover {
+    transform: translateY(-6px) scale(1.03);
+  }
+}
+
+/* Très très petit mobile */
+@media (max-width: 360px) {
+  .poker-card {
+    width: 50px;
+    height: 70px;
+  }
+
+  .card-value {
+    font-size: 1.2rem;
+  }
+
+  .card-pattern {
+    font-size: 1.5rem;
   }
 }
 </style>
