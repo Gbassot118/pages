@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles pour les salons
+    match /rooms/{roomId} {
+      // Lecture : tout utilisateur authentifié peut lire les salons
+      allow read: if request.auth != null;
+
+      // Création : tout utilisateur authentifié peut créer un salon
+      allow create: if request.auth != null
+        && request.resource.data.createdBy == request.auth.uid;
+
+      // Suppression : tout utilisateur authentifié peut supprimer un salon
+      // La vérification que le salon est vide se fait dans le code JavaScript
+      allow delete: if request.auth != null;
+
+      // Mise à jour : tout utilisateur authentifié peut mettre à jour (pour les rounds, etc.)
+      allow update: if request.auth != null;
+
+      // Règles pour les participants d'un salon
+      match /participants/{participantId} {
+        // Lecture : tout utilisateur authentifié peut lire les participants
+        allow read: if request.auth != null;
+
+        // Création : l'utilisateur peut s'ajouter lui-même comme participant
+        allow create: if request.auth != null
+          && request.resource.data.userId == request.auth.uid;
+
+        // Mise à jour : l'utilisateur peut mettre à jour ses propres données
+        allow update: if request.auth != null
+          && resource.data.userId == request.auth.uid;
+
+        // Suppression : l'utilisateur peut se retirer lui-même du salon
+        allow delete: if request.auth != null
+          && resource.data.userId == request.auth.uid;
+      }
+    }
+  }
+}
